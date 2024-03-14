@@ -22,6 +22,7 @@ COPY proxy/edgeproxy.yaml /etc/envoy.yaml
 
 COPY start.sh ./start.sh
 
+EXPOSE 6060
 EXPOSE 8080
 EXPOSE 9090
 

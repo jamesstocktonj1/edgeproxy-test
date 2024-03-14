@@ -18,28 +18,19 @@ static_resources:
               route_config:
                 name: local_route
                 virtual_hosts:
-                  - name: local_service
+                  - name: backend
                     domains: ["*"]
                     routes:
                       - match:
-                          prefix: "/health"
+                          prefix: "/"
                         route:
-                          cluster: local
-                      - match:
-                          prefix: "/v0"
-                        route:
-                          cluster: local
-                      - match:
-                          prefix: "/vr"
-                        route:
-                          prefix_rewrite: "/v0"
+                          prefix_rewrite: "/v0/"
                           cluster: remote
-  
+
   clusters:
-    - name: local
-      type: STATIC
+    - name: remote
+      type: STRICT_DNS
       lb_policy: ROUND_ROBIN
-      connect_timeout: 0.25s
       health_checks:
         timeout: 2s
         interval: 10s
@@ -49,26 +40,6 @@ static_resources:
           path: "/health"
       load_assignment:
         cluster_name: local
-        endpoints:
-          - lb_endpoints:
-            - endpoint:
-                address:
-                  socket_address:
-                    address: 127.0.0.1
-                    port_value: 6060
-    - name: remote
-      type: STRICT_DNS
-      lb_policy: ROUND_ROBIN
-      connect_timeout: 0.25s
-      health_checks:
-        timeout: 2s
-        interval: 10s
-        unhealthy_threshold: 1
-        healthy_threshold: 1
-        http_health_check:
-          path: "/health"
-      load_assignment:
-        cluster_name: remote
         endpoints:
           - lb_endpoints:
             - endpoint:
@@ -91,7 +62,7 @@ static_resources:
                   socket_address:
                     address: edgeproxy-test-server-4
                     port_value: 8080
-                        
+
 admin:
   address:
     socket_address:
