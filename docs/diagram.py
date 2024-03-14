@@ -1,6 +1,7 @@
 from diagrams import Diagram, Cluster
 from diagrams.onprem.network import Envoy
 from diagrams.programming.language import Go
+from diagrams.onprem.tracing import Jaeger
 
 with Diagram("edgeproxy", show=False):
 
@@ -29,6 +30,11 @@ with Diagram("edgeproxy", show=False):
     proxy3 >> proxy2
     proxy2 >> proxy1
     # proxy1 >> proxy3
+
+    tracing = Jaeger("tracing")
+    server1 >> tracing
+    server2 >> tracing
+    server3 >> tracing
 
     proxy = Envoy("main proxy")
     proxy >> proxy1
