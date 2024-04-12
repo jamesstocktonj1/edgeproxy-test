@@ -9,6 +9,10 @@ services:
     ports:
       - 8080:8080
       - 9090:9090
+    environment:
+      - JAEGER_AGENT_HOST=edgeproxy-test-tracing-1
+      - SERVICE_NAME=edgeproxy
+      - JAEGER_AGENT_PORT=6831
 
   tracing:
     image: jaegertracing/all-in-one:latest
@@ -25,4 +29,5 @@ services:
     build: .
     environment:
       - JAEGER_AGENT_HOST=edgeproxy-test-tracing-1
+      - SERVICE_NAME=edgeproxy
       - JAEGER_AGENT_PORT=6831

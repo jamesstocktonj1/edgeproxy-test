@@ -11,6 +11,16 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
               codec_type: AUTO
               stat_prefix: ingress_http
+              generate_request_id: true
+              tracing:
+                provider:
+                  name: envoy.tracers.zipkin
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.config.trace.v3.ZipkinConfig
+                    collector_cluster: jaeger
+                    collector_endpoint: "/api/v2/spans"
+                    shared_span_context: false
+                    collector_endpoint_version: HTTP_JSON
               http_filters:
                 - name: envoy.filters.http.router
                   typed_config: 
@@ -29,11 +39,15 @@ static_resources:
                           prefix: "/v0"
                         route:
                           cluster: local
+                        decorator:
+                          operation: "local"
                       - match:
                           prefix: "/vr"
                         route:
                           prefix_rewrite: "/v0"
                           cluster: remote
+                        decorator:
+                          operation: "remote"
   
   clusters:
     - name: local
@@ -91,10 +105,10 @@ static_resources:
                   socket_address:
                     address: edgeproxy-test-server-4
                     port_value: 8080
-
     - name: jaeger
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
+      connect_timeout: 0.25s
       load_assignment:
         cluster_name: jaeger
         endpoints:
